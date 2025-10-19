@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:item_registration/Presentation/product_home.dart';
 import 'package:item_registration/Presentation/registration_screen.dart';
@@ -60,13 +61,20 @@ class ScreenLogin extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ScreenProductHome(),
-                          ),
-                        );
-                        // if (_loginAFormKey.currentState!.validate()) {}
+                      onPressed: () async {
+                        if (_loginAFormKey.currentState!.validate()) {
+                          try {
+                            await FirebaseAuth.instance.signInWithEmailAndPassword(
+                              email: emailController.text.trim(),
+                              password: passwordController.text.trim(),
+                            );
+                            // Navigation handled automatically by StreamBuilder
+                          } on FirebaseAuthException catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.message ?? 'Login failed')),
+                            );
+                          }
+                        }
                       },
                       child: Text('Login'),
                     ),

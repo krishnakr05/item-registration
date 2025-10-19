@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ScreenRegistration extends StatelessWidget {
@@ -145,9 +147,37 @@ class ScreenRegistration extends StatelessWidget {
             ),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  if (_regFormKey.currentState!.validate()) {}
+                onPressed: () async {
+                  if (_regFormKey.currentState!.validate()) {
+                    try {
+                      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                        email: userEmailController.text.trim(),
+                        password: userPasswordController.text.trim(),
+                      );
+
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(userCredential.user!.uid)
+                          .set({
+                        'name': userNameController.text,
+                        'gender': selectedGender,
+                        'address': userAddressController.text,
+                        'email': userEmailController.text,
+                      });
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Registration successful!')),
+                      );
+
+                      Navigator.of(context).pop(); // back to login
+                    } on FirebaseAuthException catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e.message ?? 'Registration failed')),
+                      );
+                    }
+                  }
                 },
+
                 child: Text('Regsiter'),
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:item_registration/Presentation/login_screen.dart';
 import 'package:item_registration/Presentation/product_home.dart';
@@ -15,6 +16,24 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: ScreenProductHome());
+    return MaterialApp(debugShowCheckedModeBanner: false,
+      title: 'Item Registration',
+      theme: ThemeData(primarySwatch: Colors.indigo),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          // Waiting for Firebase
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          // User logged in
+          if (snapshot.hasData) {
+            return ScreenProductHome();
+          }
+          // User not logged in
+          return ScreenLogin();
+        },
+      ),
+    );
   }
 }
