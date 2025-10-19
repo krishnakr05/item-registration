@@ -178,7 +178,7 @@ class ScreenRegistration extends StatelessWidget {
                   }
                 },
 
-                child: Text('Regsiter'),
+                child: Text('Register'),
               ),
             ),
           ],

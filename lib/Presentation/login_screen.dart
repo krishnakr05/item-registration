@@ -64,15 +64,22 @@ class ScreenLogin extends StatelessWidget {
                       onPressed: () async {
                         if (_loginAFormKey.currentState!.validate()) {
                           try {
-                            await FirebaseAuth.instance.signInWithEmailAndPassword(
+                            final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
                               email: emailController.text.trim(),
                               password: passwordController.text.trim(),
                             );
-                            // Navigation handled automatically by StreamBuilder
+
+                            if (userCredential.user != null) {
+                              print('Login successful: ${userCredential.user!.email}');
+                            }
+
                           } on FirebaseAuthException catch (e) {
+                            print('Login error: ${e.code}');
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(e.message ?? 'Login failed')),
                             );
+                          } catch (e) {
+                            print('Unexpected error: $e');
                           }
                         }
                       },

@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:item_registration/Core/core.dart';
 import 'package:item_registration/Infrastructure/db_functions.dart';
 import 'package:item_registration/Model/item_category_model.dart';
 import 'package:item_registration/Model/item_model.dart';
+import 'package:item_registration/Presentation/login_screen.dart';
+import 'package:item_registration/main.dart';
 
 class ScreenProductHome extends StatelessWidget {
   ScreenProductHome({super.key});
@@ -32,6 +35,19 @@ class ScreenProductHome extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: Colors.lightGreen,
             title: Text('Welcome <Name>', style: TextStyle(color: Colors.white)),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const MainApp()),
+  (route) => false,
+                  );
+                },
+              )
+            ],
+
           ),
           body: ListView(
             children: [
