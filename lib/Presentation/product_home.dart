@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:item_registration/Core/core.dart';
@@ -7,8 +8,15 @@ import 'package:item_registration/Model/item_model.dart';
 import 'package:item_registration/Presentation/login_screen.dart';
 import 'package:item_registration/main.dart';
 
-class ScreenProductHome extends StatelessWidget {
-  ScreenProductHome({super.key});
+class ScreenProductHome extends StatefulWidget {
+  const ScreenProductHome({super.key});
+
+  @override
+  State<ScreenProductHome> createState() => _ScreenProductHomeState();
+}
+
+class _ScreenProductHomeState extends State<ScreenProductHome> {
+  //ScreenProductHome({super.key});
   final itemCategoryController = TextEditingController();
   String? selectedItemCategory;
   final itemNameController = TextEditingController();
@@ -18,6 +26,29 @@ class ScreenProductHome extends StatelessWidget {
   final _formItem = GlobalKey<FormState>();
   int itemCategoryId = 0;
   int itemId = 0;
+  String? userName;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserName();
+  }
+
+  Future<void> fetchUserName() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users') 
+          .doc(user.uid)
+          .get();
+      if (userDoc.exists) {
+        setState(() {
+          userName = userDoc.data()?['name'] ?? user.email?.split('@')[0];
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Future<void> _loadData = Future(() async {
@@ -34,7 +65,10 @@ class ScreenProductHome extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.lightGreen,
-            title: Text('Welcome <Name>', style: TextStyle(color: Colors.white)),
+            title: Text(
+              userName == null ? 'Welcome' : 'Welcome $userName',
+              style: const TextStyle(color: Colors.white),
+            ),
             actions: [
               IconButton(
                 icon: const Icon(Icons.logout),
